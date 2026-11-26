@@ -30,6 +30,7 @@
   - `When_the_cart_is_empty_the_total_is_zero`
   - `When_payment_is_declined_placing_the_order_throws_a_payment_exception`
 - This is an exception to the PascalCase method naming rule in the C# code style. It applies only to test methods. If an analyzer flags the underscores (for example CA1707), suppress that rule for test projects only.
+- Don't put XML doc comments (`///`) on test classes or test methods. The sentence-style names already say what each test checks, so a summary would only repeat them. Turn off StyleCop SA1600 and compiler warning CS1591 for test projects only, in `tests/Directory.Build.props` (see structure.md). Production code keeps them on. Helper classes in a test project, such as a shared verifier or builder, can still have doc comments where they help.
 - Describe behavior, not implementation. Don't put method names in the test name unless the method name is the clearest way to describe the behavior.
 
 ## Structure

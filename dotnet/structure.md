@@ -6,6 +6,8 @@ Repo/
 ├── Repo.slnx
 ├── Directory.Build.props        # Settings for every project
 ├── Directory.Packages.props     # NuGet package versions for every project
+├── stylecop.json                # StyleCop settings, including the file header
+├── .editorconfig                # Editor and IDE settings (see csharp-code-style.md)
 ├── src/
 │   └── Company.Product.Feature/
 └── tests/
@@ -54,16 +56,18 @@ Repo/
 - Don't repeat a setting in individual `.csproj` files when it applies to every project or every test project. Put it in the matching `Directory.Build.props`.
 
 ### Root `Directory.Build.props`
-Applies to every project in the repo. It must set `SatelliteResourceLanguages` to `en`, so builds don't copy localized resource folders for every language from NuGet packages. It also holds the StyleCop reference that every project needs (see csharp-code-style.md).
+Applies to every project in the repo. It must set `SatelliteResourceLanguages` to `en`, so builds don't copy localized resource folders for every language from NuGet packages. It also holds the StyleCop reference and `stylecop.json` that every project needs (see csharp-code-style.md). `GenerateDocumentationFile` is on because StyleCop's documentation rules don't run without it (SA0001).
 
 ```xml
 <Project>
   <PropertyGroup>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" PrivateAssets="all" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 </Project>
 ```
@@ -83,6 +87,8 @@ MSBuild only loads the nearest `Directory.Build.props`, so this file must import
     <LangVersion>14</LangVersion>
     <!-- Test names use underscores between words (see unit-testing.md). -->
     <NoWarn>$(NoWarn);CA1707</NoWarn>
+    <!-- Test classes and methods aren't XML-documented: their sentence-style names say what each test checks (see unit-testing.md). -->
+    <NoWarn>$(NoWarn);SA1600;CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

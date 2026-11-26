@@ -10,3 +10,4 @@ conflict to the user rather than reformatting unrelated code.
 @dotnet/csharp-code-style.md
 @dotnet/unit-testing.md
 @dotnet/structure.md
+@dotnet/nuget.md

@@ -11,7 +11,8 @@ team-standards/
 └── dotnet/
     ├── csharp-code-style.md    # C# code style rules
     ├── unit-testing.md         # Unit testing standards
-    └── structure.md            # Project and solution structure
+    ├── structure.md            # Project and solution structure
+    └── nuget.md                # NuGet package guidance
 ```
 
 ## Using these standards in a project

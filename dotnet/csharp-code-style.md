@@ -9,7 +9,79 @@
   </ItemGroup>
   ```
   Set the version in `Directory.Packages.props` (see structure.md).
+- Configure StyleCop with a `stylecop.json` at the repo root, added to every project in `Directory.Build.props`:
+  ```xml
+  <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
+  ```
 - Fix StyleCop warnings rather than suppressing them. Disable a rule in `.editorconfig` only with team agreement, and give the reason in a comment.
+
+## File headers
+- Every `.cs` file starts with a file header, followed by a blank line (StyleCop SA1633).
+- Use a plain comment header that contains only the file name. It needs no company name, so it works for personal projects too. Set this in `stylecop.json`:
+  ```json
+  {
+    "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
+    "settings": {
+      "documentationRules": {
+        "xmlHeader": false,
+        "copyrightText": "{fileName}"
+      }
+    }
+  }
+  ```
+  Each file then starts like this:
+  ```csharp
+  // OrderService.cs
+
+  namespace Company.Product.Feature;
+  ```
+- `"xmlHeader": false` means StyleCop expects a plain `//` comment, not the `<copyright company="...">` XML form, so its company-name rules (SA1640, SA1641) don't apply. SA1636 still checks that the header matches, so keep it in step when you rename a file.
+- If a project needs a real copyright or license notice, change `copyrightText` in that repo's `stylecop.json` (for example `"Copyright (c) Contoso. Licensed under the MIT License."`). Don't turn SA1633 off.
+
+## .editorconfig
+- Every repo has an `.editorconfig` at the root. If a project doesn't have one, add it. If it has one, add any of the settings below that are missing.
+- StyleCop enforces the code style, so don't repeat its rules in `.editorconfig` (braces, `String` vs `string`, using order, field and constant naming). The settings below are the ones StyleCop doesn't cover, or that stop IDE fixes and `dotnet format` from producing code StyleCop rejects.
+- Don't add a `:warning` severity to settings that StyleCop already enforces. It only adds a second squiggle for the same problem.
+
+```ini
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+[*.{csproj,props,targets,slnx,json,xml}]
+indent_size = 2
+
+[*.cs]
+indent_size = 4
+max_line_length = 120
+
+# StyleCop enforces the code style. The settings below cover what it doesn't, or tell
+# IDE fixes and `dotnet format` to produce code that StyleCop accepts.
+
+# Stops IDE fixes and `dotnet format` moving usings outside the namespace (StyleCop SA1200).
+csharp_using_directive_placement = inside_namespace
+
+# Stops IDE code cleanup removing `this.` (StyleCop SA1101).
+dotnet_style_qualification_for_field = true
+dotnet_style_qualification_for_property = true
+dotnet_style_qualification_for_method = true
+dotnet_style_qualification_for_event = true
+
+# File-scoped namespaces. StyleCop has no rule for this.
+csharp_style_namespace_declarations = file_scoped:warning
+
+# var when the type is obvious. StyleCop has no rule for this.
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+```
+
+- Put rule suppressions that the team has agreed to (see "StyleCop comes first") at the end of the `[*.cs]` section, each with a comment giving the reason.
 
 ## Naming
 | Element | Convention | Example |
@@ -38,7 +110,7 @@
   using System.Text.Json;
   using Company.Product.Core;
   ```
-- Set `csharp_using_directive_placement = inside_namespace` in `.editorconfig` so IDE fixes and `dotnet format` don't move usings back outside.
+- The `.editorconfig` setting `csharp_using_directive_placement = inside_namespace` stops IDE fixes and `dotnet format` moving usings back outside (see .editorconfig above).
 
 ## Formatting
 - Indent with 4 spaces. Use Allman braces, with each brace on its own line.
